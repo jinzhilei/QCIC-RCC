@@ -1,0 +1,143 @@
+function picture()
+file_immune='./immune_Cell.mat';
+cell=cell2mat(struct2cell(load(file_immune)));
+number = 700;
+size = 4;
+
+T_h = zeros(number,size);
+T_r = zeros(number,size);
+T_c = zeros(number,size);
+TAM = zeros(number,size);
+
+cell_PD = cell(cell(:,end) == 1,:);
+cell_SD = cell(cell(:,end) == 2,:);
+cell_PR = cell(cell(:,end) == 3,:);
+cell_CR = cell(cell(:,end) == 4,:);
+
+cell_PD = cell_PD(1:number,:);
+cell_SD = cell_SD(1:number,:);
+cell_PR = cell_PR(1:number,:);
+cell_CR = cell_CR(1:number,:);
+
+T_h(:,1) = cell_PD(:,12);
+T_h(:,2) = cell_SD(:,12);
+T_h(:,3) = cell_PR(:,12);
+T_h(:,size) = cell_CR(:,12);
+
+T_r(:,1) = cell_PD(:,15);
+T_r(:,2) = cell_SD(:,15);
+T_r(:,3) = cell_PR(:,15);
+T_r(:,size) = cell_CR(:,15);
+
+T_c(:,1) = cell_PD(:,21);
+T_c(:,2) = cell_SD(:,21);
+T_c(:,3) = cell_PR(:,21);
+T_c(:,size) = cell_CR(:,21);
+
+TAM(:,1) = cell_PD(:,24);
+TAM(:,2) = cell_SD(:,24);
+TAM(:,3) = cell_PR(:,24);
+TAM(:,size) = cell_CR(:,24);
+
+figure(1)
+color = ColorMatrix();
+c
+color_size = [7,10,4,1];
+
+for i = 1:size
+    % 计算核密度估计
+    [f, xi] = ksdensity(T_h(:,i));
+    % 标准化密度以控制宽度
+    width = 0.3;
+    f_scaled = f / max(f) * width;
+    % 绘制左右两侧的密度曲线
+    x_left = i - f_scaled;
+    x_right = i + f_scaled;
+    % 填充密度区域
+    fill([x_left; flipud(x_right)], [xi; flipud(xi)], color(1,color_size(i)), 'FaceAlpha', 0.5, 'EdgeAlpha', 0.8);
+    hold on
+end
+
+title('三组数据的小提琴图（无工具箱实现）');
+xlabel('组别');
+ylabel('数值');
+xticks(1:size);
+xticklabels({'PD', 'SD', 'PR', 'CR'});
+grid on;
+hold off;
+
+figure(2)
+
+for i = 1:4
+    % 计算核密度估计
+    [f, xi] = ksdensity(T_r(:,i));
+    % 标准化密度以控制宽度
+    width = 0.3;
+    f_scaled = f / max(f) * width;
+    % 绘制左右两侧的密度曲线
+    x_left = i - f_scaled;
+    x_right = i + f_scaled;
+    % 填充密度区域
+    fill([x_left; flipud(x_right)], [xi; flipud(xi)], color(1,color_size(i)), 'FaceAlpha', 0.5, 'EdgeAlpha', 0.8);
+    hold on
+end
+
+title('三组数据的小提琴图（无工具箱实现）');
+xlabel('组别');
+ylabel('数值');
+xticks(1:size);
+xticklabels({'PD', 'SD', 'PR', 'CR'});
+grid on;
+hold off;
+
+figure(3)
+
+for i = 1:4
+    % 计算核密度估计
+    [f, xi] = ksdensity(T_c(:,i));
+    % 标准化密度以控制宽度
+    width = 0.3;
+    f_scaled = f / max(f) * width;
+    % 绘制左右两侧的密度曲线
+    x_left = i - f_scaled;
+    x_right = i + f_scaled;
+    % 填充密度区域
+    fill([x_left; flipud(x_right)], [xi; flipud(xi)], color(1,color_size(i)), 'FaceAlpha', 0.5, 'EdgeAlpha', 0.8);
+    hold on
+end
+
+title('三组数据的小提琴图（无工具箱实现）');
+xlabel('组别');
+ylabel('数值');
+xticks(1:size);
+xticklabels({'PD', 'SD', 'PR', 'CR'});
+grid on;
+hold off;
+
+
+figure(4)
+
+for i = 1:4
+    % 计算核密度估计
+    [f, xi] = ksdensity(TAM(:,i));
+    % 标准化密度以控制宽度
+    width = 0.3;
+    f_scaled = f / max(f) * width;
+    % 绘制左右两侧的密度曲线
+    x_left = i - f_scaled;
+    x_right = i + f_scaled;
+    % 填充密度区域
+    fill([x_left; flipud(x_right)], [xi; flipud(xi)], color(1,color_size(i)), 'FaceAlpha', 0.5, 'EdgeAlpha', 0.8);
+    hold on
+end
+
+title('三组数据的小提琴图（无工具箱实现）');
+xlabel('组别');
+ylabel('数值');
+xticks(1:size);
+xticklabels({'PD', 'SD', 'PR', 'CR'});
+grid on;
+hold off;
+
+
+end
