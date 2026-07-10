@@ -1,0 +1,113 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% This script file is used to perform cell dynamics simulations of no drug
+
+% t_start: start time (therapy)
+% t_calibration: simulation time
+% z: simulate the number of virtual patients
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+t_start = 1;
+t_calibration = 84;
+t_end = 360;
+dim = 4; 
+z = 1000;
+param_bounds = [0.1,50;0.1,50;0.1,50;0.1,50];
+%% Parameter sampling
+
+file='../1、VP_Immunogenomic/VP_immune/VP_model_parameter.mat';
+A_immune_par=cell2mat(struct2cell(load(file)));
+
+file='../1、VP_Immunogenomic/VP_immune/VP_sample_immune.mat';
+A=cell2mat(struct2cell(load(file)));
+
+file = '../1、VP_Immunogenomic/VP_immune/Number_VP_patients.mat';
+O_order=cell2mat(struct2cell(load(file)));
+L = length(O_order);
+cell = A(O_order,:);
+file = './VP_immune/immune_cell.mat';
+save(file,"cell");
+rng(123)
+Tumor_0 = 3.2279e10+rand(L,1)*(2.0675e11 - 3.2279e10);
+file_Tumor_0 = './VP_immune/Tumor_0';
+save(file_Tumor_0,"Tumor_0");
+Par = A_immune_par(O_order,:);
+file = './VP_immune/immune_par.mat';
+save(file,"Par");
+
+pool = gcp('nocreate');
+if isempty(pool)
+    pool = parpool(20);  % 使用20个worker
+end
+
+%% Calculation of tumor parameters
+% [best_params] = PSO(Par,dim,param_bounds,t_start,t_calibration,pool);
+% 
+% file = './VP_immune/P';
+% save(file,'best_params');
+file = './VP_immune/P';
+best_params =cell2mat(struct2cell(load(file)));
+
+% 设置随机数保证可重复性
+r = randi([1 L], z, 1);
+
+% 预分配结果
+R = zeros(4, 10);
+
+
+    
+    S = tumor_parameter(z, best_params);
+    B_immune_par = A_immune_par(r, :);
+    %% Simulation calculation - 使用parfeval并行计算
+    fprintf('提交%d个任务到并行池...\n', z);
+    
+    % 提交所有任务
+    futures = parallel.Future.empty();
+    for j = 1:z
+       
+        % 提取当前患者的参数
+        
+        % 提交任务 - 直接传递标量参数，避免传递整个数组
+        futures(j) = parfeval(pool, @solve_one_patient, 1, ...
+            j,r, ...  % 患者索引
+            B_immune_par,S,...
+            t_start, t_end);  % 时间参数
+    end
+    
+    % 收集结果
+    fprintf('开始收集结果...\n');
+    you = zeros(z, 28);  % 存储当前循环的you
+    
+    for completed = 1:z
+        [idx, y_t] = fetchNext(futures);
+        
+        % 显示进度
+        if mod(completed, 10) == 0 || completed == 1
+            fprintf('  已完成: %d/%d\n', completed, z);
+        end
+        file = ['./VP_NoDrug/','VPsample_',num2str(idx),'.mat'];
+        save(file, 'y_t');
+    end
+    
+    for i =1:10
+
+    % 计算当前循环的评估结果
+    [CR, PR, SD, PD] = evaluating(z, you,r);
+    R(1,j) = CR;
+    R(2,j) = PR;
+    R(3,j) = SD;
+    R(4,j) = PD;
+    
+    % 保存中间结果（每轮都保存，防止崩溃）
+    file = './VP_immune/CPSP.mat';
+    save(file, "R");
+    
+    fprintf('第%d次循环完成，CR=%.2f, PR=%.2f, SD=%.2f, PD=%.2f\n', ...
+        i, CR, PR, SD, PD);
+end
+
+fprintf('\n=== 全部计算完成！ ===\n');
+%% ========== 替换结束 ==========
+
+
