@@ -2,7 +2,7 @@
 
 This repository contains the MATLAB source code accompanying the paper:
 
-> Lei Du, Chenghang Li, Jinzhi Lei. *A multi-source data-driven quantitative cancer-immunity cycle model predicts clinical responses to combination therapy in advanced renal cell carcinoma.* J. R. Soc. Interface (2026).
+> Lei Du, Chenghang Li, Jinzhi Lei. *A multi-source data-driven quantitative cancer-immunity cycle model predicts clinical responses to combination therapy in advanced renal cell carcinoma.* Preprint (2026).
 
 The code implements the **MDD-QCIC** framework, which integrates immunogenomic data,
 population pharmacokinetics (PopPK), RECIST v1.1 response criteria, and overall-survival
@@ -254,7 +254,7 @@ If you use this code, please cite:
 ```
 Du L, Li C, Lei J. A multi-source data-driven quantitative cancer-immunity cycle
 model predicts clinical responses to combination therapy in advanced renal cell
-carcinoma. J R Soc Interface. 2026.
+carcinoma. Preprint 2026.
 ```
 
 ## License
