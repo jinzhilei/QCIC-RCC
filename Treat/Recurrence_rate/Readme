@@ -1,1 +1,1 @@
-The intermediate/result .mat files produced by the VP pipeline and consumed by the figure scripts are not included in this repository due to size; regenerate them by running the pipeline above (or use your own calibrated cohort).
+Data for different treatment protocols
